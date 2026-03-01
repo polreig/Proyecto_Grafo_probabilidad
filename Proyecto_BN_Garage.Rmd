@@ -1,0 +1,162 @@
+---
+title: "Proyecto BN"
+subtitle: "Aprendizaje Máquina II. Máster en Ciencia de Datos (UV)."
+author: "IDAL"
+output: 
+  html_document: 
+    toc: yes
+    number_sections: yes
+---
+
+# Objetivo
+
+El trabajo consiste en la creación de la *Red Bayesiana* `Garage` y realizar ejercicios de inferencia. Se hará uso de los paquetes `bnlearn` y `gRain`.
+
+Un taller dispone de una *Red Bayesiana* para modelizar las probabilidades de su día a día. Los vehículos están caracterizados con las variables Edad (A), Tipo (T), Kilometraje (M) y si necesitan cambios de bujías (SP) y/o frenos (B)
+
+![Garage](bayesGarage.png)
+
+# Red Bayesiana
+
+## Distribución de probabilidad
+
+Escribe de manera **factorizada** la función densidad de probabilidad conjunta P(A,T,M,SP,B)
+
+$P(A,T,M,SP,B)=$
+
+## Grafo Acíclico Dirigido
+
+Creación del Grafo Acíclico Dirigido según probabilidad factorizada.
+
+```{r}
+library(bnlearn)
+#solucion
+
+```
+
+## CPT, Tablas de probabilidad condicionada
+
+Crea las matrices/arrays de probabilidad condicionada para cada nodo para la creación de una red bayesiana discreta según la librería `bnlearn`.
+
+```{r}
+
+```
+
+## Red Bayesiana
+
+Unimos el grafo y las distribuciones locales para crear la *Red Bayesiana*.
+
+```{r}
+bn <- custom.fit(dag,cpt)
+```
+
+# Inferencia
+
+## junction tree
+
+Crea el árbol de inferencia `junction tree` para acelerar los cálculos de las probabilidades condicionadas de manera exacta.
+
+```{r}
+library(gRain)
+jt<-compile(as.grain(bn))
+summary(jt)
+```
+
+## Razonamiento sin Evidencias
+
+Determina las probabilidades del Kilometraje de los vehículos, $P(M)$, sin ninguna información adicional (evidencias). ¿Hay algún resultado más esperable que otro considerando que `h=high` y `l=low`?
+
+```{r}
+#solucion
+
+```
+
+Interpreta la etiquetas de la Edad en función del Kilometraje.
+
+```{r}
+#solución 
+
+```
+
+¿Qué combinación de Edad y tipo de coche es menos frecuente?
+
+```{r}
+#solución 
+
+```
+
+Determina el Kilometraje medio para cada tipo de coche. Supón que `h=high=150000` y `l=low=50000`
+
+```{r}
+#solución 
+
+```
+
+Nos llama la grúa al taller y sabemos que nos llega un coche de tal edad y tipo. ¿Qué probabilidad esperamos de cambiarle los frenos? **Nota: mira la ayuda de querygrain para condicionar por 2 variables**
+
+```{r}
+#solución 
+
+```
+
+¿Cuál es la situación más probable (MAP) en nuestro taller? ¿tiene sentido?
+
+```{r}
+#solucion
+
+```
+
+## Razonamiento con Evidencias
+
+Determina cómo se modifica la probabilidad de cambiar los frenos si sabemos que el vehículo es viejo. ¿Aumenta o disminuye? ¿(según las diapositivas de clase) es razonamiento evidencial o causal?
+
+```{r}
+#solucion
+
+```
+
+Determina cómo se modifica la probabilidad de que el vehículo sea nuevo, cuando sabemos que necesita un cambio de bujías y de frenos. ¿(según las diapositivas de clase) es razonamiento evidencial o causal?
+
+```{r}
+#solucion
+
+```
+
+Determina cómo se modifica la probabilidad de la edad para cada tipo de vehículo, cuando sabemos que Kilometraje es alto.
+
+```{r}
+#solución 
+
+```
+
+¿Cómo se modifican las expectativas (de las combinaciones) de las reparaciones cuando se modifica el tipo de coche?
+
+```{r}
+#solucion
+
+```
+
+Interpreta el siguiente código... ¿cuándo puede ser interesante la versión 2) de la consulta?
+
+```{r}
+#consulta1
+jtMhard<-setEvidence(jt, nodes=c("M"), states=c("h"))
+querygrain(jtMhard,nodes=c("B"),type="marginal")
+
+#consulta2
+jtMsoft<-setEvidence(jt, nodes=c("M"), states=list(c("h"=0.75,"l"=0.25)))
+querygrain(jtMsoft,nodes=c("B"),type="marginal")
+
+#consulta3
+querygrain(jt,nodes=c("B"),type="marginal")
+```
+
+# Reto analista.
+
+Plantea 3 preguntas/cuestiones al "Garage". Desarrolla la consulta probabilista y comenta la respuesta.
+
+*Nota: Puedes añadir/quitar cualquier elemento o dato que consideres necesario.*
+
+```{r}
+
+```
