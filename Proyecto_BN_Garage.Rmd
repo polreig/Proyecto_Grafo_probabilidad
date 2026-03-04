@@ -268,6 +268,32 @@ Plantea 3 preguntas/cuestiones al "Garage". Desarrolla la consulta probabilista 
 
 *Nota: Puedes añadir/quitar cualquier elemento o dato que consideres necesario.*
 
-```{r}
+## Consulta 1
+¿Si sabemos que los frenos fallan, aumenta nuestra sospecha de que las bujías también estén mal, a pesar de no estar conectadas directamente?
 
+```{r}
+p_SP_yes <- querygrain(jt, nodes="SP")$SP["yes"]
+p_SP_yes_B <- querygrain(setEvidence(jt, nodes="B", states="yes"), nodes="SP")$SP["yes"]
+cat("P(Bujías mal) a priori:", p_SP_yes, "\nCon frenos rotos:", p_SP_yes_B, "\n")
 ```
+Me parece un ejemplo muy claro de cómo fluye la información en una Red Bayesiana. Aunque el nodo de las Bujías (SP) y el de los Frenos (B) son independientes dado el Kilometraje (M) (no hay un arco directo entre ellos), observar un fallo en los frenos nos da información sobre la variable oculta: es una evidencia de que el coche probablemente tenga un alto kilometraje (flujo bottom-up). Al aumentar nuestra certeza sobre el alto kilometraje, lógicamente aumenta la probabilidad de que las bujías también fallen (flujo top-down).
+
+## Consulta 2
+Si sabemos que el kilometraje es alto (M=h), creemos que el coche será viejo (A=o). ¿Qué pasa si descubrimos que es de tipo a2?
+
+```{r}
+p_A_o_h <- querygrain(setEvidence(jt, nodes="M", states="h"), nodes="A")$A["o"]
+p_A_o_h_a2 <- querygrain(setEvidence(jt, nodes=c("M", "T"), states=c("h", "a2")), nodes="A")$A["o"]
+cat("\nP(Edad=o | M=h):", p_A_o_h, "\nP(Edad=o | M=h, Tipo=a2):", p_A_o_h_a2, "\n")
+```
+Lo habitual teóricamente sería que la confirmación de una de las causas (Tipo a2) "explicara" el efecto (alto kilometraje) y redujera la probabilidad de la otra causa (Edad o). Sin embargo, al calcularlo vemos que la probabilidad sube ligerísimamente. Esto nos demuestra la importancia de analizar empíricamente las CPTs subyacentes: si revisamos las tablas, los coches viejos de tipo a2 tienen un 90% de probabilidad de tener un alto kilometraje. Conocer que es de tipo a2 no descarta que sea viejo, sino que refuerza marginalmente la coherencia de ese perfil específico en nuestro taller.
+
+## Consulta 3
+¿Cuánto reduce el riesgo de cambiar frenos comprar un coche de tipo a1 frente a uno a2 asumiendo que ambos son "viejos"?
+
+```{r}
+p_B_o_a1 <- querygrain(setEvidence(jt, nodes=c("A", "T"), states=c("o", "a1")), nodes="B")$B["yes"]
+p_B_o_a2 <- querygrain(setEvidence(jt, nodes=c("A", "T"), states=c("o", "a2")), nodes="B")$B["yes"]
+cat("\nP(Frenos=yes | Viejo, a1):", p_B_o_a1, "\nP(Frenos=yes | Viejo, a2):", p_B_o_a2, "\n")
+```
+Estos resultados muestran que, a igualdad de edad, pertenecer al tipo a2 incrementa el riesgo de necesitar un cambio de frenos en 12 puntos porcentuales frente al tipo a1. Considero que esta es la verdadera utilidad analítica de la red: permite al negocio anticipar la necesidad de stock de pastillas de freno si sabe que su clientela habitual trae más coches del tipo a2, o ajustar los presupuestos y tiempos de las revisiones preventivas.
