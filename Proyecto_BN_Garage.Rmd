@@ -1,7 +1,7 @@
 ---
 title: "Proyecto BN"
 subtitle: "Aprendizaje Máquina II. Máster en Ciencia de Datos (UV)."
-author: "IDAL"
+author: "Pol Reig i Gómez, Pablo Carbonell Martínez"
 output: 
   html_document: 
     toc: yes
